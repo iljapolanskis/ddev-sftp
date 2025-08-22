@@ -39,17 +39,23 @@ setup() {
 }
 
 health_checks() {
-  # Do something useful here that verifies the add-on
-
-  # You can check for specific information in headers:
-  # run curl -sfI https://${PROJNAME}.ddev.site
-  # assert_output --partial "HTTP/2 200"
-  # assert_output --partial "test_header"
-
-  # Or check if some command gives expected output:
-  DDEV_DEBUG=true run ddev launch
+  # Check if SFTP service is running and healthy
+  run ddev exec -s sftp nc -z localhost 22
   assert_success
-  assert_output --partial "FULLURL https://${PROJNAME}.ddev.site"
+
+  # Check if SFTP service is listed in ddev describe
+  run ddev describe
+  assert_success
+  assert_output --partial "sftp"
+
+  # Check if SFTP service logs are accessible
+  run ddev logs -s sftp
+  assert_success
+
+  # Verify SFTP port is exposed (default 2222)
+  run ddev describe
+  assert_success
+  assert_output --partial "2222"
 }
 
 teardown() {

@@ -25,23 +25,52 @@ After installation, make sure to commit the `.ddev` directory to version control
 | `ddev describe` | View service status and used ports for Sftp |
 | `ddev logs -s sftp` | Check Sftp logs |
 
-## Advanced Customization
+## Configuration
 
-To change the Docker image:
+You can customize the SFTP service by setting environment variables in your `.ddev/.env` file:
 
 ```bash
-ddev dotenv set .ddev/.env.sftp --sftp-docker-image="busybox:stable"
-ddev add-on get iljapolanskis/ddev-sftp
+# SFTP port (host port mapping)
+SFTP_PORT=2222
+
+# SFTP credentials
+SFTP_USERNAME=myuser
+SFTP_PASSWORD=mypassword
+
+# SFTP directory and user/group IDs
+SFTP_UID=1001
+SFTP_GID=1001
+SFTP_DIR=upload
+
+# Host path to mount
+SFTP_HOST_PATH=../upload/sftp
+```
+
+After making changes, restart DDEV:
+
+```bash
 ddev restart
 ```
 
-Make sure to commit the `.ddev/.env.sftp` file to version control.
+## Configuration Options
 
-All customization options (use with caution):
+| Variable | Default | Description |
+| -------- | ------- | ----------- |
+| `SFTP_PORT` | `2222` | Host port for SFTP access |
+| `SFTP_USERNAME` | `sftp` | SFTP username |
+| `SFTP_PASSWORD` | `sftp` | SFTP password |
+| `SFTP_UID` | `1001` | User ID for SFTP user |
+| `SFTP_GID` | `1001` | Group ID for SFTP user |
+| `SFTP_DIR` | `upload` | Directory name inside SFTP home |
+| `SFTP_HOST_PATH` | `../upload/sftp` | Host path to mount as SFTP directory |
 
-| Variable | Flag | Default |
-| -------- | ---- | ------- |
-| `SFTP_DOCKER_IMAGE` | `--sftp-docker-image` | `busybox:stable` |
+## Connecting to SFTP
+
+Once configured, you can connect to the SFTP service using:
+- **Host**: `localhost` (or your DDEV hostname)
+- **Port**: Value of `SFTP_PORT` (default: 2222)
+- **Username**: Value of `SFTP_USERNAME` (default: sftp)
+- **Password**: Value of `SFTP_PASSWORD` (default: sftp)
 
 ## Credits
 
