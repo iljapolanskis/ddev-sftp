@@ -3,11 +3,11 @@
 [![last commit](https://img.shields.io/github/last-commit/iljapolanskis/ddev-sftp)](https://github.com/iljapolanskis/ddev-sftp/commits)
 [![release](https://img.shields.io/github/v/release/iljapolanskis/ddev-sftp)](https://github.com/iljapolanskis/ddev-sftp/releases/latest)
 
-# DDEV Sftp
+# DDEV SFTP
 
 ## Overview
 
-This add-on integrates Sftp into your [DDEV](https://ddev.com/) project.
+This add-on integrates SFTP into your [DDEV](https://ddev.com/) project.
 
 ## Installation
 
@@ -22,8 +22,8 @@ After installation, make sure to commit the `.ddev` directory to version control
 
 | Command | Description |
 | ------- | ----------- |
-| `ddev describe` | View service status and used ports for Sftp |
-| `ddev logs -s sftp` | Check Sftp logs |
+| `ddev describe` | View service status and used ports for SFTP |
+| `ddev logs -s sftp` | Check SFTP logs |
 
 ## Configuration
 
@@ -34,8 +34,8 @@ You can customize the SFTP service by setting environment variables in your `.dd
 SFTP_PORT=2222
 
 # SFTP credentials
-SFTP_USERNAME=myuser
-SFTP_PASSWORD=mypassword
+SFTP_USERNAME=sftp
+SFTP_PASSWORD=sftp
 
 # SFTP directory and user/group IDs
 SFTP_UID=1001
@@ -72,6 +72,46 @@ Once configured, you can connect to the SFTP service using:
 - **Username**: Value of `SFTP_USERNAME` (default: sftp)
 - **Password**: Value of `SFTP_PASSWORD` (default: sftp)
 
+## PHP Usage Example
+
+Here's an example of how to use the SFTP service from within your PHP application:
+
+First, install the required PHP library:
+
+```bash
+composer require phpseclib/phpseclib
+```
+
+Then use it in your code (playground.php file):
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+use phpseclib3\Net\SFTP;
+
+$sftp = new SFTP('sftp');
+if (!$sftp->login('sftp', 'sftp')) {
+    die('Login Failed');
+}
+
+$content = "This is a test file.\nLine 2 of the file.\n";
+$remoteFilePath = '/upload/test_file_' . time() . '.txt';
+if ($sftp->put($remoteFilePath, $content)) {
+    echo "File uploaded successfully to $remoteFilePath\n";
+} else {
+    echo "Failed to upload file to $remoteFilePath\n";
+}
+```
+
+Note: This example uses the default SFTP service hostname (`sftp`) which is accessible from within the DDEV environment.
+```shell
+ddev exec php playground.php
+```
+
 ## Credits
 
 **Contributed and maintained by [@iljapolanskis](https://github.com/iljapolanskis)**
+
+This add-on uses the [atmoz/sftp](https://github.com/atmoz/sftp) Docker image as the base for the SFTP service.
