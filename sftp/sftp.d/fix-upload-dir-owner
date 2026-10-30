@@ -1,0 +1,7 @@
+#!/bin/sh
+#ddev-generated
+# Docker creates a missing bind-mount source as root, and atmoz/sftp skips
+# chown for directories that already exist, so the SFTP user can't write.
+if [ -d "${SFTP_UPLOAD_DIR}" ] && [ "$(stat -c %u "${SFTP_UPLOAD_DIR}")" = "0" ]; then
+  chown "${SFTP_UPLOAD_OWNER}" "${SFTP_UPLOAD_DIR}"
+fi

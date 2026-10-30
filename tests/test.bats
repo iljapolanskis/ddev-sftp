@@ -56,6 +56,11 @@ health_checks() {
   run ddev describe
   assert_success
   assert_output --partial "2222"
+
+  # Upload a file from the web container and check it lands on the host
+  run ddev exec "echo hello > /tmp/sftp-test.txt && curl -sS -k -u sftp:sftp -T /tmp/sftp-test.txt sftp://sftp/upload/sftp-test.txt"
+  assert_success
+  assert_file_exists "${TESTDIR}/upload/sftp/sftp-test.txt"
 }
 
 teardown() {
@@ -75,6 +80,8 @@ teardown() {
   echo "# ddev add-on get ${DIR} with project ${PROJNAME} in $(pwd)" >&3
   run ddev add-on get "${DIR}"
   assert_success
+  # atmoz/sftp only runs /etc/sftp.d hooks that are executable
+  assert_file_executable .ddev/sftp/sftp.d/fix-upload-dir-owner
   run ddev restart -y
   assert_success
   health_checks

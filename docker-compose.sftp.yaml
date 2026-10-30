@@ -5,18 +5,22 @@ services:
     container_name: ddev-${DDEV_SITENAME}-sftp
     hostname: ${DDEV_SITENAME}-sftp
     image: "atmoz/sftp:alpine"
+    # atmoz/sftp is published for amd64 only; arm64 hosts run it emulated
+    platform: linux/amd64
     ports:
-      - "${SFTP_PORT:-2222}:22"
+      # SFTP is not HTTP, so it can't go through the DDEV router; bind to localhost only
+      - "127.0.0.1:${SFTP_PORT:-2222}:22"
     environment:
-      - SFTP_USERS=${SFTP_USERNAME:-sftp}:${SFTP_PASSWORD:-sftp}:${SFTP_UID:-1001}:${SFTP_GID:-1001}:${SFTP_DIR:-upload}
+      - SFTP_USERS=${SFTP_USERNAME:-sftp}:${SFTP_PASSWORD:-sftp}:${SFTP_UID:-${DDEV_UID}}:${SFTP_GID:-${DDEV_GID}}:${SFTP_DIR:-upload}
+      - SFTP_UPLOAD_DIR=/home/${SFTP_USERNAME:-sftp}/${SFTP_DIR:-upload}
+      - SFTP_UPLOAD_OWNER=${SFTP_UID:-${DDEV_UID}}:${SFTP_GID:-${DDEV_GID}}
     volumes:
       - "${SFTP_HOST_PATH:-../upload/sftp}:/home/${SFTP_USERNAME:-sftp}/${SFTP_DIR:-upload}"
+      - "./sftp/sftp.d:/etc/sftp.d:ro"
     labels:
       com.ddev.site-name: ${DDEV_SITENAME}
       com.ddev.approot: ${DDEV_APPROOT}
-    networks:
-      - ddev_default
-    restart: unless-stopped
+    restart: "no"
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "22"]
       interval: 30s
@@ -26,7 +30,3 @@ services:
   web:
     depends_on:
       - sftp
-
-volumes:
-  sftp-data:
-    name: ddev-${DDEV_SITENAME}-sftp-data

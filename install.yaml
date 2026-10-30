@@ -2,5 +2,6 @@ name: sftp
 
 project_files:
   - docker-compose.sftp.yaml
+  - sftp/sftp.d/fix-upload-dir-owner
 
 ddev_version_constraint: '>= v1.24.3'
